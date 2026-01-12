@@ -20,7 +20,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  
-  # 添加 assets 配置
-  assets:
-    - .env
