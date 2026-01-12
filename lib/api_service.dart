@@ -3,9 +3,42 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
-  static const String BACKEND_URL = "http://localhost:8000";
+  static String? _backendUrl;
+
+  static String getBaseURL() {
+    if (_backendUrl != null) {
+      return _backendUrl!;
+    }
+
+    // Try to get from environment variables first
+    String? host = const String.fromEnvironment('API_HOST', defaultValue: '');
+    String? port = const String.fromEnvironment('API_PORT', defaultValue: '');
+
+    // If not available from environment, try loading from .env file
+    if (host.isEmpty) {
+      host = dotenv.env['API_HOST'] ?? '';
+    }
+    if (port.isEmpty) {
+      port = dotenv.env['API_PORT'] ?? '443';
+    }
+
+    // Default to localhost if still not set
+    if (host.isEmpty) {
+      host = "localhost";
+    }
+    if (port.isEmpty) {
+      port = "8000";
+    }
+
+    // Determine protocol based on port (443 typically uses https)
+    String protocol = port == "443" ? "https" : "http";
+    _backendUrl = "$protocol://$host:$port";
+
+    return _backendUrl!;
+  }
 
   // Evaluate text using the backend API
   static Future<Map<String, dynamic>?> evaluateText(String text) async {
@@ -17,7 +50,7 @@ class ApiService {
       };
 
       final response = await http.post(
-        Uri.parse('$BACKEND_URL/evaluate'),
+        Uri.parse('${getBaseURL()}/evaluate'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(payload),
       );
@@ -36,16 +69,16 @@ class ApiService {
 
   // Evaluate file using the backend API
   static Future<Map<String, dynamic>?> evaluateFile(PlatformFile file) async {
-    // Determine if it's an image file or text-based file
+    // Determine if it's an image file or pdf file
     String lowerFileName = file.name.toLowerCase();
     bool isImageFile = ['.png', '.jpg', '.jpeg'].any((ext) => lowerFileName.endsWith(ext));
-    bool isTextFile = ['.txt', '.md', '.csv'].any((ext) => lowerFileName.endsWith(ext));
     bool isPdfFile = lowerFileName.endsWith('.pdf');
+    bool isTextFile = ['.txt', '.md', '.csv'].any((ext) => lowerFileName.endsWith(ext));
 
-    if (isImageFile) {
-      // Handle image files using evaluate-image endpoint
+    if (isImageFile || isPdfFile) {
+      // Handle image and pdf files using evaluate-image endpoint
       return await _evaluateImageFile(file);
-    } else if (isTextFile || isPdfFile) {
+    } else if (isTextFile) {
       // Handle text files by reading content and sending to evaluate endpoint
       return await _evaluateTextFile(file);
     } else {
@@ -59,7 +92,7 @@ class ApiService {
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('$BACKEND_URL/evaluate-image'),
+        Uri.parse('${getBaseURL()}/evaluate-image'),
       );
 
       // Add the form fields like in the Python implementation
@@ -136,7 +169,7 @@ class ApiService {
   // Check backend health status
   static Future<bool> checkHealth() async {
     try {
-      final response = await http.get(Uri.parse('$BACKEND_URL/health'));
+      final response = await http.get(Uri.parse('${getBaseURL()}/health'));
 
       if (response.statusCode == 200) {
         final healthData = jsonDecode(response.body);

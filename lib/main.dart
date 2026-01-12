@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'writing_coach.dart'; // Import the writing coach screen
 
-void main() {
+Future<void> main() async {
+  // Load environment variables from .env file
+  await dotenv.load(fileName: ".env");
   runApp(const MainApp());
 }
 
