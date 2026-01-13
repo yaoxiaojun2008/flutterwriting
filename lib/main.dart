@@ -96,7 +96,7 @@ class _FirstPageState extends State<FirstPage> {
 class SecondPage extends StatefulWidget {
   const SecondPage({super.key});
 
-  @parameter
+  @override
   State<SecondPage> createState() => _SecondPageState();
 }
 
