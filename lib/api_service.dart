@@ -3,42 +3,10 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
-  static String? _backendUrl;
-
-  static String getBaseURL() {
-    if (_backendUrl != null) {
-      return _backendUrl!;
-    }
-
-    // Try to get from environment variables first
-    String? host = const String.fromEnvironment('API_HOST', defaultValue: '');
-    String? port = const String.fromEnvironment('API_PORT', defaultValue: '');
-
-    // If not available from environment, try loading from .env file
-    if (host.isEmpty) {
-      host = dotenv.env['API_HOST'] ?? '';
-    }
-    if (port.isEmpty) {
-      port = dotenv.env['API_PORT'] ?? '443';
-    }
-
-    // Default to localhost if still not set
-    if (host.isEmpty) {
-      host = "localhost";
-    }
-    if (port.isEmpty) {
-      port = "8000";
-    }
-
-    // Determine protocol based on port (443 typically uses https)
-    String protocol = port == "443" ? "https" : "http";
-    _backendUrl = "$protocol://$host:$port";
-
-    return _backendUrl!;
-  }
+  // 使用硬编码方式配置，根据用户提供的值设置API_HOST和API_PORT
+  static const String BACKEND_URL = "https://coachwriting.vercel.app"; // 端口443使用HTTPS协议
 
   // Evaluate text using the backend API
   static Future<Map<String, dynamic>?> evaluateText(String text) async {
@@ -50,7 +18,7 @@ class ApiService {
       };
 
       final response = await http.post(
-        Uri.parse('${getBaseURL()}/evaluate'),
+        Uri.parse('$BACKEND_URL/evaluate'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(payload),
       );
@@ -92,7 +60,7 @@ class ApiService {
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('${getBaseURL()}/evaluate-image'),
+        Uri.parse('$BACKEND_URL/evaluate-image'),
       );
 
       // Add the form fields like in the Python implementation
@@ -169,7 +137,7 @@ class ApiService {
   // Check backend health status
   static Future<bool> checkHealth() async {
     try {
-      final response = await http.get(Uri.parse('${getBaseURL()}/health'));
+      final response = await http.get(Uri.parse('$BACKEND_URL/health'));
 
       if (response.statusCode == 200) {
         final healthData = jsonDecode(response.body);
