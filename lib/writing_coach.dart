@@ -124,7 +124,7 @@ class _WritingCoachScreenState extends State<WritingCoachScreen> {
         title: const Text('Writing Coach Info'),
         content: const Text(
           'This writing coach connects to a backend API for AI-powered writing evaluation. '
-          'Make sure the backend service is running at http://localhost:8000 for full functionality.'
+          'Make sure the backend service is running at https://coachwriting.vercel.app for full functionality.'
         ),
         actions: [
           TextButton(
@@ -151,7 +151,7 @@ class _WritingCoachScreenState extends State<WritingCoachScreen> {
           borderRadius: BorderRadius.circular(12),
         ),
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.8,
+          maxWidth: MediaQuery.of(context).size.width * 0.85, // Adjust message width for mobile
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +193,7 @@ class _WritingCoachScreenState extends State<WritingCoachScreen> {
 
     return Container(
       margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10), // Slightly reduced padding
       decoration: BoxDecoration(
         color: Colors.green[50],
         borderRadius: BorderRadius.circular(8),
@@ -231,7 +231,7 @@ class _WritingCoachScreenState extends State<WritingCoachScreen> {
 
   Widget _buildSection(String title, String content) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10), // Slightly reduced margin
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -245,7 +245,7 @@ class _WritingCoachScreenState extends State<WritingCoachScreen> {
           const SizedBox(height: 4),
           Text(
             content,
-            style: const TextStyle(fontSize: 14),
+            style: const TextStyle(fontSize: 14), // Slightly smaller font for mobile
           ),
         ],
       ),
@@ -254,7 +254,7 @@ class _WritingCoachScreenState extends State<WritingCoachScreen> {
 
   Widget _buildListSection(String title, List<dynamic> items) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10), // Slightly reduced margin
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -270,7 +270,7 @@ class _WritingCoachScreenState extends State<WritingCoachScreen> {
                 margin: const EdgeInsets.only(left: 8, bottom: 4),
                 child: Text(
                   '• ${item.toString()}',
-                  style: const TextStyle(fontSize: 14),
+                  style: const TextStyle(fontSize: 14), // Slightly smaller font for mobile
                 ),
               )).toList(),
         ],
@@ -293,8 +293,10 @@ class _WritingCoachScreenState extends State<WritingCoachScreen> {
               decoration: const InputDecoration(
                 hintText: 'Type your writing or question...',
                 border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.all(8),
+                contentPadding: EdgeInsets.all(8), // Reduced padding
               ),
+              maxLines: 3, // Allow up to 3 lines for mobile
+              minLines: 1,
               onSubmitted: (_) => _sendMessage,
             ),
           ),
